@@ -1,0 +1,324 @@
+﻿
+@model DevWebApppb.Models.ViewModels.DatosViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+<script src="~/Scripts/jquery-3.4.1.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
+<div class="container">
+
+    <h2>Usuarios</h2>
+
+
+    <button class="btn btn-success" style="margin: 20px 0"  onclick="AgregarR()">Agregar</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido Paterno</th>
+                <th>Apellido Materno</th>
+                <th>Edad</th>
+                <th>Active</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody id="tbodyD">
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="myModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="text-center" id="titulo"></h2>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+
+<script>
+
+    //Trae todo de la BD y crea Tabla
+    GetInfoData();
+    function GetInfoData() {
+        $.ajax({
+            type: "GET",
+            url: "/Page/GetInfo",
+            success: function (data) {
+                data.forEach(dat => {
+                    //console.log(dat);
+                    const datosTabla = document.querySelector("#tbodyD");
+                    datosTabla.innerHTML += `
+                    <tr>
+                        <td>${dat.Nombre}</td>
+                        <td>${dat.Apellido_Paterno}</td>
+                        <td>${dat.Apellido_Materno}</td>
+                        <td>${dat.Edad}</td>
+                        <td>${dat.IsActive}</td>
+                        <td><button class="btn btn-primary" onclick="EditarObtenerRegistro(${dat.Id})" >Editar</button></td>
+                        <td><button class="btn btn-danger" onclick="Eliminar(${dat.Id})">Eliminar</button></td>
+                    </tr>
+
+                    `
+                });
+            }
+
+        })
+
+    }
+
+
+
+    //Btn Agregar afuera
+    function AgregarR() {
+        Swal.fire({
+            title: '<h2>Crear Usuario</h2>',
+            html: `
+                <form id="formulario">
+                    <fieldset id="field">
+                        @Html.HiddenFor(m => m.Id, new { @id = "UsuId" })
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Nombre, new { @id = "Nombre", @class = "form-control", @placeholder = "Nombre" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Apellido_Paterno, new { @id = "apellido_paterno", @class = "form-control", @placeholder = "Apellido Paterno" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Apellido_Materno, new { @id = "apellido_materno", @class = "form-control", @placeholder = "Materno" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Edad, new { @id = "edad", @class = "form-control", @placeholder = "Edad" })
+                        </div>
+                        <div class="form-group">
+                            @Html.EditorFor(m => m.IsActive, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Agregar" class="btn btn-success" onclick="AgregarResgistro(event)" id="btnAgregarRe" />
+                        </div>
+                    </fieldset>
+                </form>
+            `,
+            focusConfirm: false,
+            confirmButtonText:
+                'Cerrar&times;'
+        })
+
+    }
+
+
+    //Obtiene registros y los muestra en inputs
+    function EditarObtenerRegistro(usuId) {
+
+            Swal.fire({
+            title: '<h2>Editar Usuario</h2>',
+            html: `
+                <form id="formulario">
+                    <fieldset id="field">
+                        @Html.HiddenFor(m => m.Id, new { @id = "UsuId" })
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Nombre, new { @id = "Nombre", @class = "form-control", @placeholder = "Nombre" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Apellido_Paterno, new { @id = "apellido_paterno", @class = "form-control", @placeholder = "Apellido Paterno" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Apellido_Materno, new { @id = "apellido_materno", @class = "form-control", @placeholder = "Materno" })
+                        </div>
+                        <div class="form-group">
+                            @Html.TextBoxFor(m => m.Edad, new { @id = "edad", @class = "form-control", @placeholder = "Edad" })
+                        </div>
+                        <div class="form-group">
+                            @Html.EditorFor(m => m.IsActive, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Editar" class="btn btn-primary" onclick="EditarRegistro(event)" id="btnEditarRe" />
+                        </div>
+                    </fieldset>
+                </form>
+            `,
+            focusConfirm: false,
+            confirmButtonText:
+                'Cerrar&times;'
+        })
+
+        $.ajax({
+            type: "POST",
+            url: "/Page/GetInfoUsu",
+            data: { "UsuId": usuId },
+            success: function (data) {
+                const idIn = document.querySelector("#UsuId");
+                const nombreInput = document.querySelector("#Nombre");
+                const apellidoPIn = document.querySelector("#apellido_paterno");
+                const apellidoMIn = document.querySelector("#apellido_materno");
+                const edadInput = document.querySelector("#edad");
+                const select = document.querySelector("#formulario select");
+
+                idIn.value = data.Id;
+                nombreInput.value = data.Nombre;
+                apellidoPIn.value = data.Apellido_Paterno;
+                apellidoMIn.value = data.Apellido_Materno;
+                edadInput.value = data.Edad;
+                select.value = data.IsActive;
+
+            }
+        });
+
+
+    }
+
+
+    //Agregar
+    function AgregarResgistro(event) {
+
+        event.preventDefault();
+        const nombreInput = document.querySelector("#Nombre");
+        const apellidoPIn = document.querySelector("#apellido_paterno");
+        const apellidoMIn = document.querySelector("#apellido_materno");
+        const edadInput = document.querySelector("#edad");
+        const select = document.querySelector("#formulario select");
+
+        if (nombreInput.value === "" || apellidoPIn.value === "" || apellidoMIn.value === "" || edadInput.value === "" || select.value === "") {
+            mostrarAlerta("Todos los campos son obligatorios");
+            return;
+        }
+        Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: 'Your work has been saved',
+            showConfirmButton: false,
+            timer: 1500
+        })
+        $.ajax({
+            type: "POST",
+            url: "/Page/CreateUser",
+            data: {
+                Nombre: nombreInput.value,
+                Apellido_Paterno: apellidoPIn.value,
+                Apellido_Materno: apellidoMIn.value,
+                Edad: edadInput.value,
+                IsActive: select.value
+            },
+            success: function () {
+                LimpiarHTML();
+                GetInfoData();
+
+            }
+
+        })
+    }
+
+    //Edita
+    function EditarRegistro(event) {
+        event.preventDefault();
+        const idInput = document.querySelector("#UsuId");
+        const nombreInput = document.querySelector("#Nombre");
+        const apellidoPIn = document.querySelector("#apellido_paterno");
+        const apellidoMIn = document.querySelector("#apellido_materno");
+        const edadInput = document.querySelector("#edad");
+        const select = document.querySelector("#formulario select");
+
+        if (nombreInput.value === "" || apellidoPIn.value === "" || apellidoMIn.value === "" || edadInput.value === "" || select.value === "") {
+            mostrarAlerta("Todos los campos son obligatorios");
+            return;
+        }
+        Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: 'Your work has been saved',
+            showConfirmButton: false,
+            timer: 1500
+        })
+        $.ajax({
+            type: "POST",
+            url: "/Page/UpdateUser",
+            data: {
+                Id: idInput.value,
+                Nombre: nombreInput.value,
+                Apellido_Paterno: apellidoPIn.value,
+                Apellido_Materno: apellidoMIn.value,
+                Edad: edadInput.value,
+                IsActive: select.value
+            },
+            success: function () {
+                LimpiarHTML();
+                GetInfoData();
+            }
+        })
+
+    }
+    //Elimina
+
+    function Eliminar(usuId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire(
+                    'Deleted!',
+                    'Your file has been deleted.',
+                    'success'
+                )
+                $.ajax({
+                    type: "POST",
+                    url: "/Page/DeleteUser",
+                    data: { "UsuId": usuId },
+                    success: function () {
+                        LimpiarHTML();
+                        GetInfoData();
+                    }
+
+                })
+
+            }
+        })
+    }
+
+
+    //Mensaje de error
+    function mostrarAlerta(mensaje) {
+        const alerta = document.querySelector(".error");
+        if (!alerta) {
+            const divAlerta = document.createElement('div');
+            const parrafo = document.createElement('p');
+            const field = document.querySelector("#field");
+            parrafo.textContent = mensaje;
+            divAlerta.classList.add('text-center', 'alert', 'alert-danger', 'error');
+            divAlerta.appendChild(parrafo);
+            field.insertBefore(divAlerta, field.children[0]);
+
+            setTimeout(() => {
+                divAlerta.remove();
+
+            }, 2000);
+        }
+    }
+
+    //Limpiar HTML previo
+    function LimpiarHTML() {
+        const tabla = document.querySelector("#tbodyD");
+
+        while (tabla.firstChild) {
+            tabla.removeChild(tabla.firstChild);
+        }
+
+    }
+
+
+
+
+</script>
