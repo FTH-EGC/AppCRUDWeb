@@ -4,8 +4,17 @@
 @{
     ViewBag.Title = "Index";
 }
-<script src="~/Scripts/jquery-3.4.1.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<!-- ... -->
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+<!-- DevExtreme themes -->
+<link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/20.2.5/css/dx.common.css">
+<link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/20.2.5/css/dx.light.css">
+
+<!-- DevExtreme library -->
+<script type="text/javascript" src="https://cdn3.devexpress.com/jslib/20.2.5/js/dx.all.js"></script>
 
 
 <div class="container">
@@ -13,7 +22,7 @@
     <h2>Usuarios</h2>
 
 
-    <button class="btn btn-success" style="margin: 20px 0"  onclick="AgregarR()">Agregar</button>
+    <button class="btn btn-success" style="margin: 20px 0" onclick="AgregarR()">Agregar</button>
     <table class="table">
         <thead>
             <tr>
@@ -30,14 +39,9 @@
         </tbody>
     </table>
 
-    <div class="modal fade" id="myModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="text-center" id="titulo"></h2>
-            </div>
-            <div class="modal-body">
+    <div class="dx-viewport">
+        <div id="TablaDx">
 
-            </div>
         </div>
 
     </div>
@@ -46,6 +50,22 @@
 </div>
 
 <script>
+
+    $(function () {
+        $("#TablaDx").dxDataGrid({
+            dataSource: "/Page/GetInfo",
+            columns: [
+                { dataField: "Nombre" },
+                { dataField: "Apellido_Paterno" },
+                { dataField: "Apellido_Materno" },
+                { dataField: "Edad" },
+                { dataField: "IsActive" },
+                { dataField: "Editar" },
+                { dataField: "Eliminar" }
+            ],
+            columnAutoWidth: true
+        });
+    })
 
     //Trae todo de la BD y crea Tabla
     GetInfoData();
