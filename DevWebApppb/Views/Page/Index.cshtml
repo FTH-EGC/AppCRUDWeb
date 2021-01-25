@@ -51,6 +51,7 @@
 
 <script>
 
+
     $(function () {
         $("#TablaDx").dxDataGrid({
             dataSource: "/Page/GetInfo",
@@ -59,11 +60,44 @@
                 { dataField: "Apellido_Paterno" },
                 { dataField: "Apellido_Materno" },
                 { dataField: "Edad" },
-                { dataField: "IsActive" },
-                { dataField: "Editar" },
-                { dataField: "Eliminar" }
+                { dataField: "IsActive" }
             ],
-            columnAutoWidth: true
+            columnAutoWidth: true,
+            allowColumnReordering: true,
+            allowColumnResizing: true,
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true
+            },
+            showBorders: true,
+            editing: {
+                mode: "popup",
+                allowUpdating: true,
+                allowAdding: true,
+                allowDeleting: true,
+                popUp: {
+                    title: "Employee Info",
+                    showTitle: true,
+                    width: 200,
+                    height: 50,
+                    position: {
+                        my: "center",
+                        at: "center",
+                        of: window
+                    }
+                },
+                form: {
+                    items: [
+                        {
+                            itemType: "group",
+                            colCount: 2,
+                            colSpan: 2,
+                            items: ["Nombre", "Apellido_Paterno", "Apellido_Materno", "Edad", "IsActive"]
+                        }
+                    ]
+                }
+            }
+
         });
     })
 
